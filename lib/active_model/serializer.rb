@@ -371,7 +371,13 @@ module ActiveModel
     def include?(name)
       return false if @options.key?(:only) && !Array(@options[:only]).include?(name)
       return false if @options.key?(:except) && Array(@options[:except]).include?(name)
+      return false if _associations.keys.include?(name) && !include_association?(name)
       send INCLUDE_METHODS[name]
+    end
+
+    def include_association?(association_name)
+      return true unless @options[:includes]
+      return Hash(options[:includes]).keys.include?(association_name.to_s)
     end
 
     def include!(name, options={})

@@ -91,12 +91,23 @@ module ActiveModel
 
         def find_serializable(object)
           if target_serializer
-            target_serializer.new(object, source_serializer.options)
+            target_serializer.new(object, new_options_for_association(@name))
           elsif object.respond_to?(:active_model_serializer) && (ams = object.active_model_serializer)
-            ams.new(object, source_serializer.options)
+            ams.new(object, new_options_for_association(@name))
           else
             object
           end
+        end
+
+        def new_options_for_association key
+          options = source_serializer.options.dup
+          return options unless options[:includes].is_a?(Hash)
+          if options[:includes][name].is_a?(Hash)
+            options[:includes] = options[:includes][name]
+          else
+            options[:includes] = {}
+          end
+          options
         end
       end
 
